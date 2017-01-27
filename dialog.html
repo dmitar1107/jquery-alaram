@@ -1,0 +1,250 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<title>Register</title> 
+
+	<link rel="stylesheet"  href="includes/css/jquery.mobile-1.1.0.css" />  
+	<link rel="stylesheet" type="text/css" href="includes/css/jqm-datebox.min.css" /> 
+	<script src="includes/js/jquery.js"></script>
+	<script src="includes/js/jqm-docs.js"></script>
+	<script src="includes/js/jquery.mobile-1.1.0.js"></script>
+	<script type="text/javascript" src="includes/js/jquery.mousewheel.min.js"></script>
+	<script type="text/javascript" src="includes/js/jqm-datebox.core.min.js"></script>
+	<script type="text/javascript" src="includes/js/jqm-datebox.mode.calbox.min.js"></script>
+	<script type="text/javascript" src="includes/js/jquery.mobile.datebox.i18n.en_US.utf8.js"></script>
+	<script type="text/javascript" charset="utf-8" src="includes/js/cordova-1.9.0.js"></script>
+	<script src="includes/js/JAlarm.js"></script>
+	<script>
+        document.addEventListener("deviceready", onDeviceReady, false);
+        function onDeviceReady() {
+            
+            var devicePlatform = device.platform;
+            
+			if (devicePlatform == "Android")
+			{
+				$("#notification_style").append("<option value='1'>Status Bar</option>");
+			}
+        }
+        
+        $(document).ready( function() {
+                          
+			var numberVali = /^[0-9]+(\.[0-9]{0,3})?$/;
+                          
+			$("#notification_style").bind("change", function () {
+				var value = $(this).val();
+				if (value == "1")
+				{
+					$("#snooze").checkboxradio('disable');
+					$('#snoozetime').textinput('disable');
+
+				}
+				else {
+					$("#snooze").checkboxradio('enable');
+                                        
+                    if (!$("#snooze").is(":checked")){
+                        $('#snoozetime').textinput('disable');
+                    }
+                    else
+                    {
+                        $('#snoozetime').textinput('enable');
+                    }
+                }
+				
+			});
+            $("#snooze").click( function () {
+                if (!$(this).is(":checked")){
+                    $('#snoozetime').textinput('disable');
+                }
+                else
+                {
+                    $('#snoozetime').textinput('enable');
+                }
+            });
+                         
+			$("#register").bind("click", function () {
+//				if ($("#mode1").val() == ""){
+//					alert("Please Select any date in the calendar");
+//					return false;
+//				}
+//				if ($("#title").val() == "") {
+//					alert("Please type for the title.");
+//					return false;
+//				}
+				var snooze_option = $("#notification_style").val();
+				if (snooze_option == "0")
+				{
+					if (numberVali.test( $("#snoozetime").val() ) == false)
+					{
+						alert("Please type digital in the snooze");
+						return false;
+					}
+
+				}
+				//var date = $("#mode1").val();
+//				date = date.split("/");
+//				var year = date[2];
+//				var month = date[0];
+//				month = parseInt(month) - 1;
+//				month = month < 10?"0"+month:month;
+//				var day = date[1];
+//				var datestr = year + "-" + month + "-" + day;
+				var hour = $("#hour").val() < 10?"0"+$("#hour").val():$("#hour").val();
+				var minute = $("#minute").val() < 10?"0"+$("#minute").val():$("#minute").val();
+                                //alert("-" + datestr + "-");
+				var timestamp = new Date($("#mode1").val()).getTime() + (hour * 3600 + minute * 60) * 1000;
+                                
+                                
+                var enable_sound = (!$("#enable_sound").is(":checked")) ? 0 : 1;
+				var title		 = $("#title").val();
+				var message		 = $("#message").val();
+				var notification_style		 = $("#notification_style").val();
+				var snooze		 = (!$("#snooze").is(":checked")) ? 0 : 1;
+				var snooze_time	 = $("#snoozetime").val();
+				var repeat_option= $("#repeat_option").val();
+								
+				var data = {
+					"datetime" : timestamp,
+					"enable_sound" : enable_sound,
+					"title" : title,
+					"message" : message,
+					"notification_style" : notification_style,
+					"snooze_option" : snooze,
+					"snooze_time" : snooze_time,
+					"repeat_option" : repeat_option
+				};
+                                
+                                console.log(data);
+				window.plugins.jAlarm.registerAlarm(
+				{
+					 "success":function(){
+						//alert("SUCCESS");
+                        $("#content").submit();
+						
+					 },
+					 "fail":function(){
+					 }
+				},data
+				);				
+				
+			});
+		});
+	</script>
+</head> 
+<body> 
+	<form action="index.html" id="content" method="get">
+	<div data-role="dialog">
+			<div data-role="header" data-theme="d">
+				<h1>REGISTER</h1>
+			</div>
+			<div data-role="content" data-theme="c" style="padding:3px 15px 3px 15px;">
+				 <label for="password">Date:</label>
+				 <input name="mode1"  data-ajax="false"  id="mode1" type="text" data-role="datebox" data-options='{"mode":"calbox", "useNewStyle":true}' />	
+			</div>
+			<div data-role="content" data-theme="c" style="padding:3px 15px 3px 15px;">
+				<div class="ui-grid-a">
+					<div class="ui-block-a" style="width:50%;">
+						<div class="ui-grid-a" >
+							<div class="ui-block-a" style="width:75%;">
+								<select name="hour" id="hour" data-mini="true">
+									<script>
+										for(var i = 0; i <= 23; i++){
+											if (i < 10)
+                                            value = "0"+i;
+											else
+                                            value = i;
+                                            
+											$("#hour").append("<option value="+i+">"+value+"</option>");
+										}
+										
+                                        </script>
+								</select>
+							</div>
+							<div class="ui-block-b" style="width:25%;">
+								<p>Hour</p>
+							</div>
+						</div>
+					</div>
+					<div class="ui-block-b" style="width:50%;">
+						<div class="ui-grid-a">
+							<div class="ui-block-a" style="width:75%;">
+								<select name="minute" id="minute" data-mini="true">
+									<script>
+										for(var i = 0; i <= 59; i++){
+											if (i < 10)
+                                            value = "0"+i;
+											else
+                                            value = i;
+											$("#minute").append("<option value="+i+">"+value+"</option>");
+										}
+                                        </script>
+								</select> 			
+							</div>
+                            <div class="ui-block-b" style="width:25%;">
+                                <p>Min</p>
+                            </div>
+                        </div>			
+					</div>
+				</div>
+			</div>
+			<div data-role="content" data-theme="c" style="padding:3px 15px 3px 15px;">
+				<fieldset data-role="controlgroup">
+				   <legend>Enable Sound:</legend>
+				   <input type="checkbox" name="enable_sound" id="enable_sound" class="custom" />
+				   <label for="enable_sound">I agree</label>
+				</fieldset>				 
+			</div>	
+			<div data-role="content" data-theme="c" style="padding:3px 15px 3px 15px;">
+				<label for="basic">Title:</label>
+				<input type="text" name="title" id="title" value="" data-mini="true" />				 
+			</div>	
+			<div data-role="content" data-theme="c" style="padding:3px 15px 3px 15px;">
+				<label for="basic">Message:</label>
+				<input type="text" name="message" id="message" value="" data-mini="true" />				 
+			</div>							
+			<div data-role="content" data-theme="c" style="padding:3px 15px 3px 15px;">
+					<fieldset data-role="controlgroup">
+					   <legend>Notification Style:</legend>
+						<select name="notification_style" id="notification_style" data-mini="true">
+							<option value="0">Notification Alram</option>	
+						</select> 	
+					</fieldset>
+				</div>	
+			<div data-role="content" data-theme="c" style="padding:3px 15px 3px 15px;">
+					<fieldset data-role="controlgroup">
+					   <legend>Snooze Option:</legend>
+					   <input type="checkbox" name="snooze" id="snooze" class="custom" />
+					   <label for="snooze">I agree</label>
+					</fieldset>				 
+				</div>	
+			<div data-role="content" data-theme="c" style="padding:3px 15px 3px 15px;">
+                <div class="ui-grid-a">
+					<div class="ui-block-a" style="width:70%;">
+						<label for="basic">Snooze Time:</label>
+						<input type="text" name="snoozetime" id="snoozetime" value="10" data-mini="true" />
+					</div>
+					<div class="ui-block-b" style="width:30%;">
+						<p style='padding:10px;'>Seconds</p>
+					</div>
+                    
+				</div>
+            </div>
+			<div data-role="content" data-theme="c" style="padding:3px 15px 3px 15px;">
+					<label for="basic">Repeat:</label>
+						<select name="repeat_option" id="repeat_option" data-mini="true">
+                            <option value="0">No Repeat</option>
+							<option value="2">Hourly</option>
+							<option value="4">Daily</option>
+							<option value="8">Weekly</option>
+							<option value="16">Monthly</option>
+							<option value="32">Yearly</option>
+						</select> 								 
+			</div>
+			<div data-role="content" data-theme="c" style="padding:3px 15px 15px 15px;">
+				<a href="#" data-role="button" id="register">Register</a> 
+			</div>
+		</form>
+	</div>
+</body>
+</html>

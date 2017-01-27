@@ -1,0 +1,132 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<title>jQuery Mobile Docs - Dialogs</title> 
+	<link rel="stylesheet"  href="includes/css/jquery.mobile-1.1.0.css" />  
+
+	<script src="includes/js/jquery.js"></script>
+	<script src="includes/js/jqm-docs.js"></script>
+	<script src="includes/js/jquery.mobile-1.1.0.js"></script>
+	<script type="text/javascript" charset="utf-8" src="includes/js/cordova-1.9.0.js"></script>
+	<script src="includes/js/JAlarm.js"></script>
+
+		
+</head> 
+<body onload="onBodyLoad()"> 
+	<script>
+        
+        var alarmManager = null;
+        function onBodyLoad()
+        {
+            document.addEventListener("deviceready", onDeviceReady, false);
+        }
+        
+        function refreshAlarmList()
+        {
+            window.plugins.jAlarm.listAllAlarms({
+                                                "success":onSuccessListAlarms,
+                                                "fail":onFailListAlarms
+                                                });
+        }
+        
+        function onSuccessListAlarms(result)
+        {
+            var repeatsArray = {
+                "0":"No Repeat",
+                "2":"Hourly",
+                "4":"Daily",
+                "8":"Weekly",
+                "16":"Monthly",
+                "32":"Yearly"
+            }
+            
+            $("#listview").html("");
+            for (var i = 0; i < result.length; i ++ )
+            {
+                if(result[i].repeat_option == "") {
+                    result[i].repeat_option = "No";
+                }
+                
+                
+//                $("#listview").append("<li><a href=''><h3>21323</h3><p><strong>232</strong></p><p>22</p><p>Repeat Moded</p><a href='#' class='delete'></a></a></li>");
+                $("#listview").append("<li id='list_"+result[i].id+"'><a href=''><h3>"+new Date(result[i].datetime)+"</h3><p><strong>"+result[i].title+"</strong></p><p>"+result[i].message+"</p><p>Repeat Mode : "+repeatsArray[""+result[i].repeat_option]+"</p><a href='#' id='del_"+result[i].id+"' class='delete'></a></a></li>");
+
+                $("#del_"+result[i].id).bind("click", function () {
+                                   var id = $(this).attr("id");
+                                   id = id.substr(4);
+                                   window.plugins.jAlarm.removeAlarm(
+                                                              {
+                                                              "success":function( result ){
+                                                                     refreshAlarmList();
+                                                              },
+                                                              "fail":function(){
+                                                              alert("Removing is failed");
+                                                              }
+                                                              },id
+                                                              );
+                                   });
+//                $('#listview').append('<li><a href="index.html">  <h3>jQuery Team</h3> <p><strong>Boston Conference Planning</strong></p><p>In preparation for the upcoming conference in Boston, we need to start gathering a list of sponsors and speakers.</p><p>dfd</p><a href="index.html">Purchase album</a></a></li>');
+            }
+            $('#listview').listview('refresh');
+        }
+        
+        function onFailListAlarms()
+        {
+            
+        }
+        
+        function onDeviceReady()
+        {
+            // do your thing!
+            //		navigator.notification.alert("Cordova is working")
+            
+            //alarmManager = window.plugins.jAlarm;
+            window.plugins.jAlarm.refreshCallback = onSuccessListAlarms;
+            window.plugins.jAlarm.listAllAlarms({
+                                                "success":onSuccessListAlarms,
+                                                "fail":onFailListAlarms
+                                                }); 
+        }
+//		$(document).ready( function (){
+//			 window.plugins.jAlarm.listAllAlarms({
+//				 "success":function(result){
+//                                                 console.log("list.success");
+//                                                 console.log(result);
+//					for (var i = 0; i < result.length; i ++ )
+//					{
+//						if(result[i].repeat_option == "") {
+//							result[i].repeat_option = "No";
+//						}
+//						$("#listview").append("<li id='list_"+result[i].id+"'><a href='#'><h3>"+result[i].datetime+"</h3><p><strong>"+result[i].datetime+"</stron></p><p>"+result[i].message+"</p><p>Repeat Mode"+result[i].repeat_option+"</p><a href='#' id='del_"+result[i].id+"' class='delete'></a></a></li>");
+//					}
+//				 },
+//				 "fail":function(){
+//				 }
+//			 }); 
+//			$("#delete").bind("click", function () {
+//				var id = $(this).attr("id");
+//				id = id.substr(4);
+//				window.plugins.removeAlarm(
+//				{
+//					 "success":function( result ){
+//						$("#list_"+result+"").hide();
+//					 },
+//					 "fail":function(){
+//						alert("Removing is failed");
+//					 }
+//				},id
+//				);
+//			});
+//		});
+	</script>
+	<div data-role="page" class="type-interior">
+		<div data-role="content" class="ui-body">
+			<a href="dialog.html" data-ajax="false" id="popping" data-role="button" data-inline="true" data-rel="dialog" data-transition="pop">Register Alarm</a>
+		</div><!--/content-primary -->	
+		<ul data-role="listview" data-inset="true" id="listview" data-split-icon="delete">
+		</ul>		
+	</div><!-- /page -->
+</body>
+</html>
